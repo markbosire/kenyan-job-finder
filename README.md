@@ -24,7 +24,7 @@ source .venv/bin/activate
 
 # 3. Install Python packages
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install --only-binary :all: -r requirements.txt
 
 # 4. Install Playwright browser binaries
 playwright install chromium
@@ -54,7 +54,7 @@ python -m venv .venv
 
 # 3. Install Python packages
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install --only-binary :all: -r requirements.txt
 
 # 4. Install Playwright browser binaries
 playwright install chromium
