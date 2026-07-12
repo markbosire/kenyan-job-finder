@@ -53,6 +53,8 @@ def check_captcha(html, url=None):
 
 
 def _find_chrome():
+    import platform
+    system = platform.system()
     paths = [
         'google-chrome', 'google-chrome-stable',
         'chromium', 'chromium-browser',
@@ -60,6 +62,11 @@ def _find_chrome():
         '/snap/bin/chromium',
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     ]
+    if system == 'Windows':
+        paths = [
+            r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+            r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
+        ]
     for path in paths:
         try:
             subprocess.run([path, '--version'], capture_output=True, timeout=5)
@@ -70,27 +77,45 @@ def _find_chrome():
 
 
 def _kill_port(port):
-    """Kill any process listening on *port*."""
-    import signal
-    for cmd in (
-        ['fuser', '-k', f'{port}/tcp'],
-        ['fuser', '-nk', str(signal.SIGKILL), f'{port}/tcp'],
-        ['lsof', '-ti', f'tcp:{port}'],
-    ):
+    """Kill any process listening on *port* (cross-platform)."""
+    import platform, signal
+    system = platform.system()
+    if system == 'Windows':
         try:
-            result = subprocess.run(cmd, capture_output=True, timeout=5, text=True)
-            if result.returncode == 0 and result.stdout.strip():
-                pids = result.stdout.strip().split()
-                for pid in pids:
-                    try:
-                        os.kill(int(pid), signal.SIGKILL)
+            result = subprocess.run(
+                ['netstat', '-ano'], capture_output=True, text=True, timeout=5
+            )
+            for line in result.stdout.splitlines():
+                if f':{port}' in line and 'LISTENING' in line:
+                    parts = line.strip().split()
+                    if parts:
+                        pid = parts[-1]
+                        subprocess.run(['taskkill', '/F', '/PID', pid],
+                                       capture_output=True, timeout=5)
                         lgr.info("Killed process %s on port %s", pid, port)
-                    except (OSError, ValueError):
-                        pass
-                time.sleep(1)
-                return
+                        time.sleep(1)
+                        return
         except (FileNotFoundError, subprocess.TimeoutExpired):
-            continue
+            pass
+    else:
+        for cmd in (
+            ['fuser', '-k', f'{port}/tcp'],
+            ['lsof', '-ti', f'tcp:{port}'],
+        ):
+            try:
+                result = subprocess.run(cmd, capture_output=True, timeout=5, text=True)
+                if result.returncode == 0 and result.stdout.strip():
+                    pids = result.stdout.strip().split()
+                    for pid in pids:
+                        try:
+                            os.kill(int(pid), signal.SIGKILL)
+                            lgr.info("Killed process %s on port %s", pid, port)
+                        except (OSError, ValueError):
+                            pass
+                    time.sleep(1)
+                    return
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                continue
 
 
 def cdp_available(port=CDP_PORT):
@@ -116,7 +141,9 @@ def ensure_cdp(profile_dir=None, user_data_dir=None):
     if not chrome:
         lgr.warning("Chrome not found — cannot launch CDP")
         return False
-    udd = user_data_dir or '/tmp/chrome_cdp_bot'
+    import platform
+    system = platform.system()
+    udd = user_data_dir or (os.path.join(os.environ.get('TEMP', '/tmp'), 'chrome_cdp_bot') if system == 'Windows' else '/tmp/chrome_cdp_bot')
     lgr.info("Launching Chrome with CDP on port %s (user-data-dir: %s%s)",
              CDP_PORT, udd, f", profile: {profile_dir}" if profile_dir else "")
     cmd = [chrome, f'--remote-debugging-port={CDP_PORT}',
