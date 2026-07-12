@@ -1,0 +1,10 @@
+requests>=2.25
+beautifulsoup4>=4.9
+lxml>=4.6
+fake-useragent>=0.1.11
+PyYAML>=5.4
+validators>=0.18
+python-jobspy>=1.1
+pandas>=1.5
+python-dateutil>=2.8
+playwright>=1.40

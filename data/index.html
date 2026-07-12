@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kenyan Job Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Inter:wght@400;500&family=PT+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#E9EBEE;--line:#D6DCE3;--line-strong:#9AA7B4;--ink:#12181F;--ink-soft:#5B6773;--green:#15803D;--green-soft:#DCF3E3;--red:#B0413E;--slate:#5C6B7A;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;padding:64px 24px 120px;}
+  .page{max-width:900px;margin:0 auto;}
+  .frame{border:1px solid var(--line);margin-bottom:-1px;background:#fff;}
+  .frame-head{border-bottom:1px solid var(--line);padding:10px 0;text-align:center;font-family:'PT Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);}
+  .section-gap{height:36px;}
+  .brand{padding:46px 40px 40px;text-align:center;}
+  .brand small{display:block;font-family:'PT Mono',monospace;font-size:11px;letter-spacing:0.15em;color:var(--green);text-transform:uppercase;margin-bottom:14px;}
+  .brand h1{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:36px;line-height:1.1;}
+  .brand p{font-family:'PT Mono',monospace;font-size:13px;color:var(--ink-soft);margin-top:16px;letter-spacing:0.01em;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);}
+  .stat{padding:34px 28px;border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat .label{font-family:'PT Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--green);margin-bottom:14px;}
+  .stat .value{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:32px;color:var(--ink);}
+  .stat .value.small{font-size:20px;}
+  .stat .value.gap{color:var(--slate);font-size:17px;font-family:'PT Mono',monospace;}
+  .src-meta{display:flex;justify-content:space-between;align-items:baseline;padding:30px 50px 0;}
+  .src-meta h2{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:18px;}
+  .src-meta .count{font-family:'PT Mono',monospace;font-size:12px;color:var(--ink-soft);}
+  .bars{padding:22px 50px 8px;}
+  .bar-row{display:flex;align-items:center;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .bar-row:last-child{border-bottom:none;}
+  .bar-row .name{flex:0 0 190px;font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-track{flex:1;background:#EAEDF1;border:1px solid var(--line);border-radius:3px;height:16px;}
+  .bar-fill{height:100%;background:var(--green);border-radius:2px;}
+  .bar-row .count{flex:0 0 34px;text-align:right;font-family:'PT Mono',monospace;font-size:12.5px;color:var(--ink-soft);}
+  .bar-row.other .bar-fill{background:var(--ink-soft);}
+  .pagination{display:flex;align-items:center;justify-content:space-between;padding:18px 50px 34px;}
+  .page-info{font-family:'PT Mono',monospace;font-size:11.5px;color:var(--ink-soft);letter-spacing:0.02em;}
+  .page-controls{display:flex;align-items:center;gap:6px;}
+  .page-btn{background:#fff;border:1px solid var(--line-strong);border-radius:6px;font-family:'PT Mono',monospace;font-size:11.5px;color:var(--ink);width:30px;height:30px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .page-btn:hover:not(:disabled){background:var(--green-soft);border-color:var(--green);color:var(--green);}
+  .page-btn:disabled{opacity:0.35;cursor:default;}
+  .page-btn.nav svg{width:9px;height:9px;stroke:currentColor;}
+  .page-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
+  .tabs{display:flex;}
+  .tab{flex:1;font-family:'PT Mono',monospace;font-size:12px;letter-spacing:0.03em;padding:18px 20px;color:var(--ink-soft);text-align:center;border-right:1px solid var(--line);cursor:pointer;}
+  .tab:last-child{border-right:none;}
+  .tab .n{color:var(--ink-soft);}
+  .tab.active{color:var(--green);background:var(--green-soft);}
+  .tab.active .n{color:var(--green);}
+  .filters{display:grid;grid-template-columns:1fr 1fr;}
+  .field{padding:24px 32px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .field:nth-child(2n){border-right:none;}
+  .filters .field:last-child,.filters .field:nth-last-child(2){border-bottom:none;}
+  .field label{display:block;font-family:'PT Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+  .field input,.field select{width:100%;border:1px solid var(--line);border-radius:5px;padding:10px 13px;font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;color:var(--ink);background:#fff;}
+  .field input::placeholder{color:#A4ABB3;}
+  .loc-row{display:flex;gap:12px;align-items:center;}
+  .loc-row input{flex:1;}
+  .shown-pill{flex:0 0 auto;font-family:'PT Mono',monospace;font-size:11.5px;color:var(--ink-soft);border:1px solid var(--line);border-radius:5px;padding:10px 13px;white-space:nowrap;}
+  .job-list{padding:0;background:#fff;}
+  .job-row{padding:26px 44px;border-bottom:1px solid var(--line);}
+  .job-row:last-child{border-bottom:none;}
+  .job-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+  .job-title{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:16px;color:var(--ink);}
+  .job-source{font-family:'PT Mono',monospace;font-size:10.5px;color:var(--ink-soft);letter-spacing:0.03em;white-space:nowrap;padding-top:3px;}
+  .job-meta{font-family:'PT Mono',monospace;font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .job-desc{font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.65;color:var(--ink-soft);margin-top:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .job-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:18px;}
+  .job-date{font-family:'PT Mono',monospace;font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:16px;}
+  .job-date a{color:var(--green);text-decoration:none;font-weight:600;}
+  .job-date .nodate{color:#B8BEC5;}
+  .job-actions{display:flex;gap:8px;}
+  .toggle-btn{font-family:'PT Mono',monospace;font-size:11px;letter-spacing:0.02em;padding:7px 14px;border-radius:5px;cursor:pointer;background:#EEF0F2;color:var(--ink-soft);border:1px solid var(--line-strong);}
+  .toggle-btn:hover{border-color:var(--ink);color:var(--ink);background:#E4E7EA;}
+  .toggle-btn.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .empty{text-align:center;padding:60px 20px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink-soft);}
+  .empty .big{font-size:20px;margin-bottom:8px;}
+  @media(max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .stat:nth-child(2){border-right:none;}
+    .stat:nth-child(1),.stat:nth-child(2){border-bottom:1px solid var(--line);}
+    .filters{grid-template-columns:1fr;}
+    .field{border-right:none;}
+    .job-top{flex-direction:column;}
+    .job-row{padding:22px 24px;}
+    .brand h1{font-size:26px;}
+    .bar-row .name{flex-basis:130px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="frame">
+    <div class="frame-head">Kenyan Job Finder — live feed</div>
+    <div class="brand">
+      <small>Kenya market</small>
+      <h1>Kenyan Job Finder</h1>
+      <p id="header-sub">Loading...</p>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-head">Overview</div>
+    <div class="stats">
+      <div class="stat"><div class="label">Total jobs</div><div class="value" id="total-count">—</div></div>
+      <div class="stat"><div class="label">Sources</div><div class="value" id="source-count">—</div></div>
+      <div class="stat"><div class="label">Earliest</div><div class="value small" id="date-earliest">—</div></div>
+      <div class="stat"><div class="label">Latest</div><div class="value gap" id="date-latest">—</div></div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-head">Jobs per source</div>
+    <div class="src-meta">
+      <h2>Top sources by volume</h2>
+      <div class="count" id="source-meta-count"></div>
+    </div>
+    <div class="bars" id="bar-list"></div>
+    <div class="pagination">
+      <div class="page-info" id="pageInfo"></div>
+      <div class="page-controls" id="pageControls"></div>
+    </div>
+  </div>
+
+  <div class="section-gap"></div>
+
+  <div class="frame">
+    <div class="frame-head">Job tracker — application pipeline</div>
+    <div class="tabs" id="tab-bar">
+      <div class="tab active" data-tab="all">All Jobs <span class="n" id="count-all"></span></div>
+      <div class="tab" data-tab="applied">Applied <span class="n" id="count-applied"></span></div>
+      <div class="tab" data-tab="ignored">Ignored <span class="n" id="count-ignored"></span></div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-head">Refine results</div>
+    <div class="filters">
+      <div class="field">
+        <label>Search</label>
+        <input type="text" id="search-input" placeholder="Title, company, keyword...">
+      </div>
+      <div class="field">
+        <label>Source</label>
+        <select id="source-filter"><option value="all">All sources</option></select>
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <div class="loc-row">
+          <input type="text" id="location-filter" placeholder="Nairobi, remote...">
+          <div class="shown-pill" id="filter-count">0 shown</div>
+        </div>
+      </div>
+      <div class="field"></div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-head">Results</div>
+    <div class="job-list" id="job-list"></div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = '';
+let JOBS = [];
+let currentTab = 'all';
+const PAGE_SIZE = 10;
+let currentPage = 1;
+let sourceData = [];
+
+function makeBarRow(name, count, maxCount){
+  const row = document.createElement('div');
+  row.className = 'bar-row' + (count <= 8 ? ' other' : '');
+  const pct = Math.max((count / maxCount * 100), 2).toFixed(1);
+  row.innerHTML =
+    '<div class="name">' + name + '</div>' +
+    '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="count">' + count + '</div>';
+  return row;
+}
+
+function renderSourcePage(page){
+  currentPage = page;
+  const container = document.getElementById('bar-list');
+  container.innerHTML = '';
+  const totalPages = Math.ceil(sourceData.length / PAGE_SIZE);
+  const start = (page - 1) * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, sourceData.length);
+  const maxVal = sourceData[0][1];
+  for (let i = start; i < end; i++){
+    container.appendChild(makeBarRow(sourceData[i][0], sourceData[i][1], maxVal));
+  }
+  document.getElementById('pageInfo').textContent = 'Showing ' + (start + 1) + '\u2013' + end + ' of ' + sourceData.length;
+  const el = document.getElementById('pageControls');
+  el.innerHTML = '';
+  const prev = document.createElement('button');
+  prev.className = 'page-btn nav';
+  prev.disabled = currentPage === 1;
+  prev.innerHTML = '<svg viewBox="0 0 10 10" fill="none"><path d="M6.5 1.5L2.5 5l4 3.5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  prev.addEventListener('click', () => renderSourcePage(currentPage - 1));
+  el.appendChild(prev);
+  for (let i = 1; i <= totalPages; i++){
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+    btn.textContent = i;
+    btn.addEventListener('click', () => renderSourcePage(i));
+    el.appendChild(btn);
+  }
+  const next = document.createElement('button');
+  next.className = 'page-btn nav';
+  next.disabled = currentPage === totalPages;
+  next.innerHTML = '<svg viewBox="0 0 10 10" fill="none"><path d="M3.5 1.5L7.5 5l-4 3.5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  next.addEventListener('click', () => renderSourcePage(currentPage + 1));
+  el.appendChild(next);
+}
+
+function renderSummary(){
+  document.getElementById('total-count').textContent = JOBS.length;
+  const sources = new Set(JOBS.map(j => j.source));
+  document.getElementById('source-count').textContent = sources.size;
+  const dates = JOBS.map(j => j.date_posted).filter(Boolean).sort();
+  document.getElementById('date-earliest').textContent = dates[0] ? dates[0].slice(0, 10) : '\u2014';
+  document.getElementById('date-latest').textContent = dates[dates.length - 1] ? dates[dates.length - 1].slice(0, 10) : '\u2014';
+  document.getElementById('header-sub').textContent = sources.size + ' sources tracked';
+  const counts = {};
+  JOBS.forEach(j => { counts[j.source] = (counts[j.source] || 0) + 1; });
+  sourceData = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  document.getElementById('source-meta-count').textContent = sourceData.length + ' sources \u00b7 ' + JOBS.length + ' jobs';
+  renderSourcePage(1);
+}
+
+function renderJobs(jobs){
+  const container = document.getElementById('job-list');
+  if (!jobs.length){
+    container.innerHTML = '<div class="empty"><div class="big">No jobs match your filters</div><p>Try widening your search criteria</p></div>';
+    return;
+  }
+  container.innerHTML = jobs.map(j => {
+    const date = (j.date_posted || '').slice(0, 10);
+    const desc = (j.description || '').slice(0, 300);
+    const meta = (j.company || 'Unknown') + ' \u00b7 ' + (j.location || '\u2014');
+    const appliedOn = j.status === 'applied' ? ' on' : '';
+    const ignoredOn = j.status === 'ignored' ? ' on' : '';
+    return '<div class="job-row">' +
+      '<div class="job-top"><div class="job-title">' + (j.title || 'Untitled') + '</div><div class="job-source">' + j.source + '</div></div>' +
+      '<div class="job-meta">' + meta + '</div>' +
+      (desc ? '<div class="job-desc">' + desc + '</div>' : '') +
+      '<div class="job-bottom">' +
+        '<div class="job-date">' + (date ? date : '<span class="nodate">no date</span>') + ' <a href="' + j.url + '" target="_blank">View job \u2192</a></div>' +
+        '<div class="job-actions">' +
+          '<button class="toggle-btn applied-btn' + appliedOn + '" data-url="' + encodeURIComponent(j.url) + '">Applied</button>' +
+          '<button class="toggle-btn ignore-btn' + ignoredOn + '" data-url="' + encodeURIComponent(j.url) + '">Ignore</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function applyFilters(){
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const source = document.getElementById('source-filter').value;
+  const location = document.getElementById('location-filter').value.toLowerCase();
+  const filtered = JOBS.filter(j => {
+    const text = (j.title + ' ' + j.company + ' ' + (j.description || '')).toLowerCase();
+    if (search && !text.includes(search)) return false;
+    if (source !== 'all' && j.source !== source) return false;
+    if (location && !(j.location || '').toLowerCase().includes(location)) return false;
+    const s = j.status || '';
+    if (currentTab === 'applied' && s !== 'applied') return false;
+    if (currentTab === 'ignored' && s !== 'ignored') return false;
+    if (currentTab === 'all' && s) return false;
+    return true;
+  });
+  document.getElementById('filter-count').textContent = filtered.length + ' shown';
+  let allC = 0, appC = 0, ignC = 0;
+  JOBS.forEach(j => { const s = j.status || ''; if (!s) allC++; else if (s === 'applied') appC++; else if (s === 'ignored') ignC++; });
+  document.getElementById('count-all').textContent = '(' + allC + ')';
+  document.getElementById('count-applied').textContent = '(' + appC + ')';
+  document.getElementById('count-ignored').textContent = '(' + ignC + ')';
+  renderJobs(filtered);
+}
+
+document.getElementById('job-list').addEventListener('click', e => {
+  const btn = e.target.closest('.toggle-btn');
+  if (!btn) return;
+  const url = decodeURIComponent(btn.dataset.url);
+  const job = JOBS.find(j => j.url === url);
+  if (!job) return;
+  const isApplied = btn.classList.contains('applied-btn');
+  const wasOn = btn.classList.contains('on');
+  const row = btn.closest('.job-row');
+  const appBtn = row.querySelector('.applied-btn');
+  const ignBtn = row.querySelector('.ignore-btn');
+  if (isApplied){
+    if (wasOn){ job.status = null; appBtn.classList.remove('on'); }
+    else { job.status = 'applied'; appBtn.classList.add('on'); ignBtn.classList.remove('on'); }
+  } else {
+    if (wasOn){ job.status = null; ignBtn.classList.remove('on'); }
+    else { job.status = 'ignored'; ignBtn.classList.add('on'); appBtn.classList.remove('on'); }
+  }
+  fetch(API_BASE + '/api/status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({url, status: job.status})
+  }).catch(() => {});
+  applyFilters();
+});
+
+document.getElementById('tab-bar').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  currentTab = tab.dataset.tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === currentTab));
+  applyFilters();
+});
+
+document.getElementById('search-input').addEventListener('input', applyFilters);
+document.getElementById('source-filter').addEventListener('change', applyFilters);
+document.getElementById('location-filter').addEventListener('input', applyFilters);
+
+async function init(){
+  try {
+    const resp = await fetch(API_BASE + '/api/jobs');
+    JOBS = await resp.json();
+  } catch(e){
+    document.getElementById('job-list').innerHTML = '<div class="empty"><div class="big">API unavailable</div><p>Start the API server: python api.py --port 9090</p></div>';
+    return;
+  }
+  const sources = new Set(JOBS.map(j => j.source));
+  const sel = document.getElementById('source-filter');
+  sources.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.textContent = s; sel.appendChild(opt); });
+  renderSummary();
+  applyFilters();
+}
+
+init();
+</script>
+</body>
+</html>
