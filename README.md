@@ -15,7 +15,7 @@ Aggregates tech jobs from Kenyan job boards + LinkedIn into a single SQLite DB, 
 
 ```bash
 # 1. Clone & enter
-git clone <repo> jobscraper
+git clone https://github.com/markbosire/kenyan-job-finder.git jobscraper
 cd jobscraper
 
 # 2. Create virtualenv & activate
@@ -45,7 +45,7 @@ python run.py --help
 
 ```powershell
 # 1. Clone & enter
-git clone <repo> jobscraper
+git clone https://github.com/markbosire/kenyan-job-finder.git jobscraper
 cd jobscraper
 
 # 2. Create virtualenv & activate
