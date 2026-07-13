@@ -235,7 +235,8 @@ def store_in_sqlite(jobs, db_path):
     init_db(conn)
 
     cutoff = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-    conn.execute('DELETE FROM jobs WHERE date_posted != "" AND date_posted < ?', (cutoff,))
+    conn.execute('DELETE FROM jobs WHERE date_posted != "" AND date_posted < ? '
+                 'AND url NOT IN (SELECT url FROM job_status)', (cutoff,))
     conn.execute("DELETE FROM jobs WHERE LOWER(source) LIKE '%bebee%'")
     conn.execute("DELETE FROM jobs WHERE LOWER(source) LIKE '%whatjobs%'")
     conn.execute("DELETE FROM jobs WHERE LOWER(source) LIKE '%cosmoquick%'")
